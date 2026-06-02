@@ -126,12 +126,12 @@ class MoleculeViewer:
 
         for a in self.atomes:
             pos : vp.vector = self.atomes[a].position + offset
-            self.texte.append(vp.label(pos=pos, text=f"{a}", box=False, border=1, opacity=0.2))
+            self.texte.append(vp.label(pos=pos, text=f"{a}", box=False, border=1, opacity=0.2, color=vp.color.green))
             self.spheres.append(vp.sphere(pos=pos, radius=a.rayon * self.RAYON_SCALE))
             for i in range(self.atomes[a].doublets):
                 pos1, pos2 = self.trouver_doublet(a, i)
-                self.spheres.append(vp.sphere(pos=pos1 + offset, radius=self.RAYON_AFFICHAGE))
-                self.spheres.append(vp.sphere(pos=pos2 + offset, radius=self.RAYON_AFFICHAGE))
+                self.spheres.append(vp.sphere(pos=pos1 + offset, radius=self.RAYON_AFFICHAGE, color=vp.color.cyan))
+                self.spheres.append(vp.sphere(pos=pos2 + offset, radius=self.RAYON_AFFICHAGE, color=vp.color.cyan))
         
         for l in ls:
             if isinstance(l, LiaisonIonique):

@@ -66,6 +66,7 @@ def C2H4():
 def main():
     CH3NHCH3()
     C2H4()
+    MgCl2()
     H2O()
 
 
