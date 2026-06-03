@@ -11,7 +11,7 @@ class MoleculeViewer:
     LIAISON_MOYENNE : float = 0.15
 
     # La taille proportionelle au réel rayon des atomes
-    RAYON_SCALE : float = 0.5
+    RAYON_SCALE : float = 0.35
 
     # Rayon des electrons et liaisons
     RAYON_AFFICHAGE : float = 0.01
@@ -127,7 +127,7 @@ class MoleculeViewer:
         for a in self.atomes:
             pos : vp.vector = self.atomes[a].position + offset
             self.texte.append(vp.label(pos=pos, text=f"{a}", box=False, border=1, opacity=0.2, color=vp.color.green))
-            self.spheres.append(vp.sphere(pos=pos, radius=a.rayon * self.RAYON_SCALE))
+            self.spheres.append(vp.sphere(pos=pos, radius=a.rayon * self.RAYON_SCALE, color=a.couleur))
             for i in range(self.atomes[a].doublets):
                 pos1, pos2 = self.trouver_doublet(a, i)
                 self.spheres.append(vp.sphere(pos=pos1 + offset, radius=self.RAYON_AFFICHAGE, color=vp.color.cyan))
@@ -140,7 +140,7 @@ class MoleculeViewer:
                     vp.arrow(
                         pos=a_pos + offset,
                         axis=(b_pos-a_pos).norm() * ((b_pos-a_pos).mag - l.b.rayon * self.RAYON_SCALE),
-                        round=True,  shaftwidth=self.RAYON_AFFICHAGE
+                        round=True,  shaftwidth=self.RAYON_AFFICHAGE, headlength=0.01
                     )
                 )
             elif isinstance(l, LiaisonCovalente):

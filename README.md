@@ -17,8 +17,8 @@ pip install -r requirements.txt
 Puis, il faut simplement mettre en marche le programme depuis `main.py`.
 Des molécules exemplaires s'afficheront sur une fenêtre VPython.
 Pour se déplacer en 3D:
-- Drag avec click droit &rarr; Tourner la caméra
-- *SHIFT* + Drag avec click gauche &rarr; Bouger la caméra
+- Click droit **OU** *CTRL* + click gauche &rarr; Tourner la caméra
+- *SHIFT* + click gauche **OU** *ALT* + click gauche &rarr; Bouger la caméra
 - Rouler la roue de souris &rarr; Contrôler le zoom
 ----
 ### Comment créer une molécule

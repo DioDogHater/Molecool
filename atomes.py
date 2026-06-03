@@ -1,24 +1,46 @@
 
 from __future__ import annotations
+from types import NoneType
 
 from utilitees import superscript
 from couches import *
 
+import vpython as vp
+import csv
+
+ptable : dict[str, dict] = {}
+with open("pub_chem_ptable.csv", "r") as f:
+    reader = csv.DictReader(f.readlines())
+    for row in reader:
+        clr_hex : str = row["CPKHexColor"]
+        if clr_hex:
+            couleur : vp.vector = vp.vector(int(clr_hex[:2], 16) / 255, int(clr_hex[2:4], 16) / 255, int(clr_hex[-2:], 16) / 255)
+        else:
+            couleur : vp.vector = vp.color.white
+        ptable[row["Symbol"]] = {
+            "numero": int(row["AtomicNumber"]),
+            "masse" : float(row["AtomicMass"]),
+            "électronégativité": float(row["Electronegativity"]) if row["Electronegativity"] else 0.0,
+            "affinité électronique": float(row["ElectronAffinity"]) if row["ElectronAffinity"] else 0.0,
+            "énergie d'ionisation": float(row["IonizationEnergy"]) if row["IonizationEnergy"] else 0.0,
+            "rayon": float(row["AtomicRadius"]) if row["AtomicRadius"] else 500.0,
+            "oxydations": [int(x) for x in row["OxidationStates"].split(',')] if row["OxidationStates"] else [],
+            "couleur": couleur
+        }
+
 class Atome:
     """Représente une atome selon le modèle quantique moderne."""
 
-    def __init__(self, symbole : str, numero : int):
-        """Crée une atome.
+    def __init__(self, symbole : str):
+        """Crée une atome. Il est possible de fournir seulement le symbole.
         Args:
-            symbole (str) : Le symbole de l'atome (affichage seulement)
-            numero (int) : Le numéro atomique de l'atome"""
+            symbole (str) : Le symbole de l'atome"""
         if not isinstance(symbole, str): raise TypeError("symbole doit être un str")
-        if not isinstance(numero, int): raise TypeError("numero doit être un int")
-        if numero <= 0: raise ValueError("numero doit être > 0")
         self.__symbole : str = symbole
-        self.__numero : int = numero
+        if not (self.__symbole in ptable): raise KeyError(f"Le symbole atomique {symbole} n'est pas dans le tableau periodique!")
+        self.__numero : int = ptable[symbole]["numero"]
         self.__couches : list[SousCouche] = []
-        [self.ajouter_electron() for _ in range(numero)]
+        [self.ajouter_electron() for _ in range(self.__numero)]
     
     @property
     def symbole(self) -> str:
@@ -41,11 +63,8 @@ class Atome:
     
     @property
     def rayon(self) -> float:
-        """Le rayon atomique approximatif."""
-        # Le calcul n'est toujours pas correct, mais je planifie
-        # l'implantation d'un tableau périodique avec lequel on peut se réferrer
-        n_corrige = [1.0, 2.0, 3.0, 3.7, 4.0, 4.2, 4.5]
-        return (self.numero / n_corrige[self.n_final - 1]**2) * 0.0529
+        """Le rayon atomique en nanomètres."""
+        return ptable[self.symbole]["rayon"] / 1000
     
     @property
     def nbre_e(self) -> int:
@@ -69,13 +88,28 @@ class Atome:
     @property
     def e_val(self) -> int:
         """Le nombre d'électrons de valence de l'atome."""
-        n_max : int = max([c.n for c in self.couches])
+        n_max : int = self.n_final
         return sum([c.nbre_e for c in self.couches if c.n == n_max])
     
     @property
     def configuration(self) -> str:
         """La configuration électronique de l'atome, en texte."""
         return " ".join([str(c) for c in self.couches])
+    
+    @property
+    def electronegativite(self) -> float:
+        """L'électronégativité de l'atome."""
+        return ptable[self.symbole]["électronégativité"]
+    
+    @property
+    def affinite(self) -> float:
+        """L'affinité électronique de l'atome."""
+        return ptable[self.symbole]["affinité électronique"]
+    
+    @property
+    def couleur(self) -> vp.vector:
+        """La couleur CPK de l'atome."""
+        return ptable[self.symbole]["couleur"]
     
     def ajouter_electron(self) -> Electron:
         """Ajoute un électron à l'atome (avec les exceptions incluses)
@@ -125,7 +159,7 @@ class Atome:
             if pi != 0: raise ValueError(f"Hydrogène ne peut faire qu'une liaison sigma ({sigma=}, {pi=})")
             return self.couches[0]
 
-        n_final : int = max([c.n for c in self.couches])
+        n_final : int = self.n_final
         s : SPDF = None ; p : SPDF = None
         for c in self.couches[::-1]:
             if c.n == n_final and isinstance(c, SPDF):

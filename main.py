@@ -10,9 +10,9 @@ offset = vp.vector(0,0,0)
 def H2O():
     global offset
 
-    h1 = Atome("H", 1)
-    h2 = Atome("H", 1)
-    o = Atome("O", 8)
+    h1 = Atome("H")
+    h2 = Atome("H")
+    o = Atome("O")
     ls1 : list[Liaison] = [LiaisonCovalente(o, h1), LiaisonCovalente(o, h2)]
     Liaison.appliquer(ls1)
     print(o.configuration)
@@ -24,9 +24,9 @@ def H2O():
 def MgCl2():
     global offset
 
-    mg = Atome("Mg", 12)
-    cl1 = Atome("Cl", 17)
-    cl2 = Atome("Cl", 17)
+    mg = Atome("Mg")
+    cl1 = Atome("Cl")
+    cl2 = Atome("Cl")
     ls2 : list[Liaison] = [LiaisonIonique(mg, cl1), LiaisonIonique(mg, cl2)]
     Liaison.appliquer(ls2)
 
@@ -38,9 +38,9 @@ def MgCl2():
 def CH3NHCH3():
     global offset
 
-    hs = [Atome("H", 1) for _ in range(7)]
-    cs = [Atome("C", 6), Atome("C", 6)]
-    n  = Atome("N", 7)
+    hs = [Atome("H") for _ in range(7)]
+    cs = [Atome("C"), Atome("C")]
+    n  = Atome("N")
     ls3 : list[Liaison] = [LiaisonCovalente(n, hs[3]), LiaisonCovalente(n, cs[0]), LiaisonCovalente(n, cs[1])]
     ls3.extend([LiaisonCovalente(cs[1], h) for h in hs[-3:]])
     ls3.extend([LiaisonCovalente(cs[0], h) for h in hs[:3]])
@@ -54,8 +54,8 @@ def CH3NHCH3():
 def C2H4():
     global offset
 
-    cs = [Atome("C", 6), Atome("C", 6)]
-    hs = [Atome("H", 1) for _ in range(4)]
+    cs = [Atome("C"), Atome("C")]
+    hs = [Atome("H") for _ in range(4)]
     ls4 : list[Liaison] = [LiaisonCovalente(cs[x // 2], hs[x]) for x in range(4)] + [LiaisonCovalente(cs[0], cs[1], 2)]
     Liaison.appliquer(ls4)
 
@@ -64,6 +64,8 @@ def C2H4():
     offset += vp.vector(1, 0, 0)
 
 def main():
+    vp.scene.ambient = vp.color.gray(0.5)
+
     CH3NHCH3()
     C2H4()
     MgCl2()
