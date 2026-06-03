@@ -64,6 +64,7 @@ def C2H4():
     offset += vp.vector(1, 0, 0)
 
 def main():
+    # Change l'intensité de la lumière ambiente
     vp.scene.ambient = vp.color.gray(0.5)
 
     CH3NHCH3()

@@ -126,7 +126,7 @@ class MoleculeViewer:
 
         for a in self.atomes:
             pos : vp.vector = self.atomes[a].position + offset
-            self.texte.append(vp.label(pos=pos, text=f"{a}", box=False, border=1, opacity=0.2, color=vp.color.green))
+            self.texte.append(vp.label(pos=pos, text=f"{a}", box=False, opacity=0, color=vp.color.black))
             self.spheres.append(vp.sphere(pos=pos, radius=a.rayon * self.RAYON_SCALE, color=a.couleur))
             for i in range(self.atomes[a].doublets):
                 pos1, pos2 = self.trouver_doublet(a, i)
