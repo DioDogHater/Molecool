@@ -7,8 +7,6 @@ import vpython as vp
 
 class MoleculeViewer:
     """Génère un modèle en VPython de la molécule"""
-    # Longueur moyenne d'une liaison
-    LIAISON_MOYENNE : float = 0.15
 
     # La taille proportionelle au réel rayon des atomes
     RAYON_SCALE : float = 0.35
@@ -83,7 +81,7 @@ class MoleculeViewer:
                 raise ValueError(f"InfoAtome doit être donné pour déterminer la position de {atome}")
             origine : vp.vector = info2.position
             info.axis = self.avoir_axe(info2, info2.index(l))
-            info.position = info.axis * self.LIAISON_MOYENNE + origine
+            info.position = info.axis * l.longueur + origine
         else:
             l = None
 
@@ -97,7 +95,7 @@ class MoleculeViewer:
         info : MoleculeViewer.InfoAtome = self.atomes[atome]
         axe = self.avoir_axe(info, len(info.liaisons) + index, doublet=True)
         axe2 = vp.vector(axe.y, -axe.x, 0).norm()
-        pos = axe * (atome.rayon * self.RAYON_SCALE + self.LIAISON_MOYENNE / 4) + info.position
+        pos = axe * (atome.rayon * self.RAYON_SCALE + Liaison.LONGUEUR_MOYENNE / 4) + info.position
         angle = vp.radians(5)
         return pos.rotate(-angle, axe2), pos.rotate(angle, axe2)
 
@@ -140,7 +138,7 @@ class MoleculeViewer:
                     vp.arrow(
                         pos=a_pos + offset,
                         axis=(b_pos-a_pos).norm() * ((b_pos-a_pos).mag - l.b.rayon * self.RAYON_SCALE),
-                        round=True,  shaftwidth=self.RAYON_AFFICHAGE, headlength=0.01
+                        round=True,  shaftwidth=self.RAYON_AFFICHAGE
                     )
                 )
             elif isinstance(l, LiaisonCovalente):

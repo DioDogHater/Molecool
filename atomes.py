@@ -6,10 +6,11 @@ from utilitees import superscript
 from couches import *
 
 import vpython as vp
-import csv
 
+import csv
+from os import path
 ptable : dict[str, dict] = {}
-with open("pub_chem_ptable.csv", "r") as f:
+with open(path.join(path.dirname(__file__), "ressources/pub_chem_ptable.csv"), "r") as f:
     reader = csv.DictReader(f.readlines())
     for row in reader:
         clr_hex : str = row["CPKHexColor"]

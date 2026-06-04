@@ -6,7 +6,15 @@ from typing import override
 from atomes import Atome
 from couches import *
 
+import json
+from os import path
+with open(path.join(path.dirname(__file__), "ressources/longueur_liaisons.json"), "r") as f:
+    longueur_liaisons : dict[str, float] = json.load(f)
+
 class Liaison(ABC):
+    # Longueur moyenne d'une liaison
+    LONGUEUR_MOYENNE : float = sum(longueur_liaisons.values()) / len(longueur_liaisons) / 10.0
+
     def __init__(self, a : Atome, b : Atome):
         super().__init__()
         if not isinstance(a, Atome) or not isinstance(b, Atome):
@@ -21,6 +29,12 @@ class Liaison(ABC):
     @property
     def b(self) -> Atome:
         return self.__b
+
+    @property
+    def longueur(self) -> float:
+        cle : str = self.a.symbole + "|" + self.b.symbole
+        if not (cle in longueur_liaisons): return Liaison.LONGUEUR_MOYENNE
+        return longueur_liaisons[cle] / 10.0
     
     @staticmethod
     def appliquer(liaisons : list[Self]):
