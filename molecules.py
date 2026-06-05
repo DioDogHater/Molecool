@@ -1,9 +1,101 @@
 from __future__ import annotations
+from types import NoneType
+
 from atomes import Atome
 from couches import *
 from liaisons import *
+from utilitees import formatter_molecule
 
 import vpython as vp
+
+class Molecule:
+    """Facilite la représentation et l'utilisation d'une molécule."""
+    # TODO: Ajouter un algorithme pour faire une structure de lewis avec la représentation texte de la molécule...
+
+    def __init__(self, nom : str, centre : Atome, ls : list[Liaison] | None = None):
+        """Construit la molécule.
+        Args:
+            nom (str) : Le nom de la molecule.
+            centre (Atome) : L'atome centrale de la molécule
+            ls (list[Liaison] | None) : La liste contenant toutes les liaisons de la molécule
+            construire (bool) : Si True, construit la molécules directement"""
+        if not isinstance(nom, str): raise TypeError("nom doit être un str")
+        if not isinstance(centre, Atome): raise TypeError("centre doit être une Atome")
+        if not isinstance(ls, (list, NoneType)): raise TypeError("ls doit être une list[Liaison] ou None")
+        self.__nom : str = nom
+        self.__atomes : set[Atome] = set()
+        self.__centre : Atome = centre
+        self.__ls : list[Liaison] = ls if ls else []
+        self.__construite : bool = False
+        for l in self.__ls:
+            for a in (l.a, l.b): self.__atomes.add(a)
+    
+    @property
+    def nom(self) -> str:
+        return self.__nom
+
+    @property
+    def atomes(self) -> set[Atome]:
+        """Les atomes présentes dans la molécule."""
+        return self.__atomes
+    
+    @property
+    def centre(self) -> Atome:
+        """L'atome centrale de la molécule."""
+        return self.__centre
+    
+    @property
+    def liaisons(self) -> list[Liaison]:
+        """Les liaisons présentes dans la molécule."""
+        return self.__ls
+    
+    def ajouter_liaisons(self, *liaisons : Liaison | list[Liaison]) -> Molecule:
+        """Ajoute des liaisons à la molécule.
+        Args:
+            *liaisons (Liaison | list[Liaison]) : Nombre variable d'arguments contenant les liaisons, ou des listes de liaisons.
+        Returns:
+            Molecule : La molécule elle-même"""
+        if self.__construite: raise ValueError("La molécule a déjà été construite, il est impossible d'ajouter plus.")
+        for l in liaisons:
+            if isinstance(l, (list, tuple)):
+                self.__ls.extend(l)
+                for _l in l:
+                    for a in (_l.a, _l.b): self.__atomes.add(a)
+            else:
+                self.__ls.append(l)
+                for a in (l.a, l.b): self.__atomes.add(a)
+            
+        return self
+
+    def construire(self) -> Molecule:
+        """Construit la molécule entière.
+        Returns:
+            Molecule : La molécule elle-même"""
+        if self.__construite: raise ValueError("La molécule a déjà été construite!")
+        Liaison.appliquer(self.liaisons)
+        self.__construite = True
+        return self
+    
+    def visualiser(self, offset : vp.vector = vp.vector(0,0,0), titre : str | None = None) -> MoleculeViewer:
+        """Crée un MoleculeViewer pour visualiser la molécule en 3D.
+        Args:
+            offset (vp.vector) : La position du centre de l'atome dans la scène en 3D.
+            titre (str) : Le titre affiché sur la molécule. (le nom de la molécule par défaut)"""
+        if not self.__construite: raise ValueError("La molécule doit être construite pour pouvoir s'afficher correctement.")
+        return MoleculeViewer(self, offset, self.nom if titre is None else titre)
+    
+    def avoir_nbre_liaisons(self, atome : Atome) -> int:
+        """Retourne le nombre de liaisons d'une atome.
+        Args:
+            atome (Atome) : L'atome concernée.
+        Returns:
+            int : Le nombre de liaisons que atome a."""
+        return len([l for l in self.liaisons if l.a == atome or l.b == atome])
+    
+    def __str__(self) -> str:
+        return formatter_molecule(self.nom)
+
+    def __repr__(self) -> str: return str(self)
 
 class MoleculeViewer:
     """Génère un modèle en VPython de la molécule"""
@@ -99,28 +191,29 @@ class MoleculeViewer:
         angle = vp.radians(5)
         return pos.rotate(-angle, axe2), pos.rotate(angle, axe2)
 
-    def __init__(self, centre : Atome, ls : list[Liaison], offset : vp.vector = vp.vector(0,0,0), titre : str = None):
+    def __init__(self, molecule : Molecule, offset : vp.vector = vp.vector(0,0,0), titre : str = ""):
         """Crée le modèle en VPython
         Args:
-            centre (Atome) : L'atome centrale de la molécule
-            ls (list[Liaison]) : Les liasons qui composent la molécule entière
+            molecule (Molecule) : La molecule à visualiser.
             offset (vector) : Le "offset" (décalage) du modèle par rapport à l'origine de la scène
             titre (str) : Le titre à placer en haut de la molécule en 3D"""
-        self.atomes      : dict[Atome, MoleculeViewer.InfoAtome] = {centre: MoleculeViewer.InfoAtome(centre, position=vp.vector(0,0,0), centre=True)}
+        if not isinstance(molecule, Molecule):
+            raise TypeError("molecule doit être une Molecule")
+        self.atomes      : dict[Atome, MoleculeViewer.InfoAtome] = {molecule.centre: MoleculeViewer.InfoAtome(molecule.centre, position=vp.vector(0,0,0), centre=True)}
         self.spheres     : list[vp.sphere] = []
         self.cylindres   : list[vp.cylinder] = []
         self.fleches     : list[vp.arrow] = []
         self.texte       : list[vp.label] = []
         self.titre       : str | None = titre
         
-        for l in ls:
+        for l in molecule.liaisons:
             for a in (l.a, l.b):
                 if a in self.atomes:
                     self.atomes[a].ajouter(l)
                 else:
                     self.atomes[a] = MoleculeViewer.InfoAtome(a, liaison=l)
 
-        self.trouver_position(centre)
+        self.trouver_position(molecule.centre)
 
         for a in self.atomes:
             pos : vp.vector = self.atomes[a].position + offset
@@ -131,7 +224,7 @@ class MoleculeViewer:
                 self.spheres.append(vp.sphere(pos=pos1 + offset, radius=self.RAYON_AFFICHAGE, color=vp.color.cyan))
                 self.spheres.append(vp.sphere(pos=pos2 + offset, radius=self.RAYON_AFFICHAGE, color=vp.color.cyan))
         
-        for l in ls:
+        for l in molecule.liaisons:
             if isinstance(l, LiaisonIonique):
                 a_pos, b_pos = self.atomes[l.a].position, self.atomes[l.b].position
                 self.fleches.append(

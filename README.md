@@ -22,9 +22,9 @@ Pour se déplacer en 3D:
 - Rouler la roue de souris &rarr; Contrôler le zoom
 ----
 ### Comment créer une molécule
-1. Créer les atômes nécessaires à l'aide de la classe `Atome`.**
+1. Créer les atômes nécessaires à l'aide de la classe `Atome`.
 
-2. Créer une liste et la remplir de toutes les liaisons de la molécule
+2. Créer un objet `Molecule` en lui fournissant le nom, puis l'atome centrique de la molécule. Ensuite, il faut lui renseigner toutes les liaisons dans la molécules, que ce soit dans le constructeur ou avec la méthode `ajouter_liaisons`. Finalement, il faut construire la molécule avec la méthode `construire`.
     <br></br>
     - Une liaison ionique est représentée avec un objet `LiaisonIonique`:\
     Fournissez d'abord l'*oxydant* (atôme qui donne ses électrons),
@@ -34,9 +34,9 @@ Pour se déplacer en 3D:
     Fournissez les deux atomes liées, puis le nombre de liaisons si il s'agit d'une double ou triple liaison.
     <br></br>
 
-3. Utiliser la méthode statique `Liaison.appliquer(X)`, où `X` doit être votre liste de liaisons. **Cette méthode hybridera les orbitales et effectuera les échanges d'électrons au sein de votre molécule automatiquement.**
+3. **Lorsque la molécule sera construite, les hybridations des orbitales et les échanges d'électrons au sein de votre molécule seront appliqués automatiquement.**
 
-4. Créer un objet `MoleculeViewer` en fournissant l'atôme centrale de la molécule et la liste des liaisons. Une fenêtre VPython devrait apparaitre dès que le programme est exécuté.
+4. Utilisez la méthode `visualiser` sur votre molécule pour afficher sa géométrie moléculaire en 3D. Une fenêtre VPython devrait apparaitre dès que le programme est exécuté.
 
 
 ##### Haha, I beat you victor

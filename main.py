@@ -1,9 +1,8 @@
 from atomes import Atome
 from liaisons import *
-from molecules import MoleculeViewer, vp
+from molecules import *
 
-from utilitees import formatter_molecule
-
+# Permet d'afficher plusieurs molécules une à côté de l'autre
 offset = vp.vector(0,0,0)
 
 # Examples de molécules
@@ -13,12 +12,14 @@ def H2O():
     h1 = Atome("H")
     h2 = Atome("H")
     o = Atome("O")
-    ls1 : list[Liaison] = [LiaisonCovalente(o, h1), LiaisonCovalente(o, h2)]
-    Liaison.appliquer(ls1)
+    h2o = Molecule("H2O", o,
+                    [LiaisonCovalente(o, h1), LiaisonCovalente(o, h2)]) \
+          .construire()
+
     print(o.configuration)
     
-    mv = MoleculeViewer(o, ls1, offset, titre="H2O")
-    print(formatter_molecule(mv.titre))
+    h2o.visualiser(offset)
+    print(h2o)
     offset += vp.vector(1, 0, 0)
 
 def MgCl2():
@@ -27,11 +28,12 @@ def MgCl2():
     mg = Atome("Mg")
     cl1 = Atome("Cl")
     cl2 = Atome("Cl")
-    ls2 : list[Liaison] = [LiaisonIonique(mg, cl1), LiaisonIonique(mg, cl2)]
-    Liaison.appliquer(ls2)
+    mgcl2 = Molecule("MgCl2", mg,
+                    [LiaisonIonique(mg, cl1), LiaisonIonique(mg, cl2)]) \
+            .construire()
 
-    mv = MoleculeViewer(mg, ls2, offset, titre="MgCl2")
-    print(formatter_molecule(mv.titre))
+    mgcl2.visualiser(offset)
+    print(mgcl2)
     offset += vp.vector(1, 0, 0)
 
 # CH3NHCH3
@@ -41,13 +43,14 @@ def CH3NHCH3():
     hs = [Atome("H") for _ in range(7)]
     cs = [Atome("C"), Atome("C")]
     n  = Atome("N")
-    ls3 : list[Liaison] = [LiaisonCovalente(n, hs[3]), LiaisonCovalente(n, cs[0]), LiaisonCovalente(n, cs[1])]
-    ls3.extend([LiaisonCovalente(cs[1], h) for h in hs[-3:]])
-    ls3.extend([LiaisonCovalente(cs[0], h) for h in hs[:3]])
-    Liaison.appliquer(ls3)
+    ch3nhch3 = Molecule("CH3NHCH3", n) \
+        .ajouter_liaisons(LiaisonCovalente(n, hs[3]), LiaisonCovalente(n, cs[0]), LiaisonCovalente(n, cs[1])) \
+        .ajouter_liaisons([LiaisonCovalente(cs[1], h) for h in hs[-3:]]) \
+        .ajouter_liaisons([LiaisonCovalente(cs[0], h) for h in hs[:3]]) \
+        .construire()
 
-    mv = MoleculeViewer(n, ls3, titre="CH3NHCH3")
-    print(formatter_molecule(mv.titre))
+    ch3nhch3.visualiser(offset)
+    print(ch3nhch3)
     offset += vp.vector(1, 0, 0)
 
 # C2H4
@@ -56,11 +59,13 @@ def C2H4():
 
     cs = [Atome("C"), Atome("C")]
     hs = [Atome("H") for _ in range(4)]
-    ls4 : list[Liaison] = [LiaisonCovalente(cs[x // 2], hs[x]) for x in range(4)] + [LiaisonCovalente(cs[0], cs[1], 2)]
-    Liaison.appliquer(ls4)
+    c2h4 = Molecule("C2H4", cs[0]) \
+        .ajouter_liaisons([LiaisonCovalente(cs[x // 2], hs[x]) for x in range(4)]) \
+        .ajouter_liaisons(LiaisonCovalente(cs[0], cs[1], 2)) \
+        .construire()
 
-    mv = MoleculeViewer(cs[1], ls4, offset, titre="C2H4")
-    print(formatter_molecule(mv.titre))
+    c2h4.visualiser(offset)
+    print(c2h4)
     offset += vp.vector(1, 0, 0)
 
 def main():
