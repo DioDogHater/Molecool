@@ -26,22 +26,24 @@ with open(path.join(path.dirname(__file__), "ressources/pub_chem_ptable.csv"), "
             "énergie d'ionisation": float(row["IonizationEnergy"]) if row["IonizationEnergy"] else 0.0,
             "rayon": float(row["AtomicRadius"]) if row["AtomicRadius"] else 500.0,
             "oxydations": [int(x) for x in row["OxidationStates"].split(',')] if row["OxidationStates"] else [],
+            "groupe": row["GroupBlock"],
             "couleur": couleur
         }
 
 class Atome:
     """Représente une atome selon le modèle quantique moderne."""
 
-    def __init__(self, symbole : str):
+    def __init__(self, symbole : str, oxydation : int = 0):
         """Crée une atome. Il est possible de fournir seulement le symbole.
         Args:
-            symbole (str) : Le symbole de l'atome"""
+            symbole (str) : Le symbole de l'atome
+            oxydation (int) : L'état d'oxydation de l'atome."""
         if not isinstance(symbole, str): raise TypeError("symbole doit être un str")
         self.__symbole : str = symbole
         if not (self.__symbole in ptable): raise KeyError(f"Le symbole atomique {symbole} n'est pas dans le tableau periodique!")
         self.__numero : int = ptable[symbole]["numero"]
         self.__couches : list[SousCouche] = []
-        [self.ajouter_electron() for _ in range(self.__numero)]
+        [self.ajouter_electron() for _ in range(self.__numero - oxydation)]
     
     @property
     def symbole(self) -> str:
@@ -85,10 +87,19 @@ class Atome:
             electrons.extend(c.electrons)
         electrons.sort(key = lambda a: a.n * 100 + a.l * 10 + a.m)
         return electrons
+
+    @property
+    def groupe(self) -> str:
+        """Le groupe élémentaire de l'atome dans le tableau périodique."""
+        return ptable[self.symbole]["groupe"]
     
     @property
     def e_val(self) -> int:
         """Le nombre d'électrons de valence de l'atome."""
+        if self.groupe == "Transition metal":
+            s_max : SPDF = max(self.couches, key=lambda x: 0 if not isinstance(x, SPDF) or x.l != 0 else x.n)
+            d_max : SPDF = max(self.couches, key=lambda x: 0 if not isinstance(x, SPDF) or x.l != 2 else x.n)
+            return s_max.nbre_e + d_max.nbre_e
         n_max : int = self.n_final
         return sum([c.nbre_e for c in self.couches if c.n == n_max])
     
