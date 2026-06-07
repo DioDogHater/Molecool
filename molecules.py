@@ -160,6 +160,31 @@ class MoleculeViewer:
             else:
                 angle : float = vp.radians(120.0) * (i - 2)
                 axe : vp.vector = vp.vector(info.axis.y, -info.axis.x, 0).rotate(angle, info.axis)
+        elif info.nbre_sterique == 6:
+            if not info.centre and not doublet: i += 1
+            if i < 2:
+                axe : vp.vector = info.axis * (1 if i == 0 else -1)
+            else:
+                angle : float = vp.radians(90.0) * (i - 2)
+                axe : vp.vector = vp.vector(info.axis.y, -info.axis.x, 0).rotate(angle, info.axis)
+        elif info.nbre_sterique == 7:
+            if not info.centre and not doublet: i += 1
+            if i < 2:
+                axe : vp.vector = info.axis * (1 if i == 0 else -1)
+            else:
+                angle : float = vp.radians(72.0) * (i - 2)
+                axe : vp.vector = vp.vector(info.axis.y, -info.axis.x, 0).rotate(angle, info.axis)
+        elif info.nbre_sterique == 8:
+            if not info.centre and not doublet: i += 1
+            if i < 4:
+                axe_principal : vp.vector = info.axis.rotate(vp.radians(120.0), vp.vector(info.axis.y, -info.axis.x, 0))
+                angle : float = vp.radians(90.0) * i
+                axe : vp.vector = info.axis.rotate(angle, axe_principal)
+            else:
+                axe_principal : vp.vector = info.axis.rotate(vp.radians(120.0), vp.vector(info.axis.y, -info.axis.x, 0))
+                axe : vp.vector = info.axis.rotate(vp.radians(60.0), vp.vector(info.axis.y, -info.axis.x, 0))
+                angle : float = vp.radians(90.0) * i + vp.radians(45.0)
+                axe = axe.rotate(angle, axe_principal)
         else:
             raise Exception(f"Pas de position pour {info.liaisons}")
         return axe.norm()
@@ -188,8 +213,7 @@ class MoleculeViewer:
         axe = self.avoir_axe(info, len(info.liaisons) + index, doublet=True)
         axe2 = vp.vector(axe.y, -axe.x, 0).norm()
         pos = axe * (atome.rayon * self.RAYON_SCALE + Liaison.LONGUEUR_MOYENNE / 4) + info.position
-        angle = vp.radians(5)
-        return pos.rotate(-angle, axe2), pos.rotate(angle, axe2)
+        return pos, pos + axe2 * self.RAYON_AFFICHAGE
 
     def __init__(self, molecule : Molecule, offset : vp.vector = vp.vector(0,0,0), titre : str = ""):
         """Crée le modèle en VPython
@@ -221,8 +245,8 @@ class MoleculeViewer:
             self.spheres.append(vp.sphere(pos=pos, radius=a.rayon * self.RAYON_SCALE, color=a.couleur))
             for i in range(self.atomes[a].doublets):
                 pos1, pos2 = self.trouver_doublet(a, i)
-                self.spheres.append(vp.sphere(pos=pos1 + offset, radius=self.RAYON_AFFICHAGE, color=vp.color.cyan))
-                self.spheres.append(vp.sphere(pos=pos2 + offset, radius=self.RAYON_AFFICHAGE, color=vp.color.cyan))
+                self.spheres.append(vp.sphere(pos=pos1 + offset, radius=self.RAYON_AFFICHAGE, color=a.couleur))
+                self.spheres.append(vp.sphere(pos=pos2 + offset, radius=self.RAYON_AFFICHAGE, color=a.couleur))
         
         for l in molecule.liaisons:
             if isinstance(l, LiaisonIonique):

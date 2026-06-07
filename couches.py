@@ -200,6 +200,8 @@ class Hybridation(IntEnum):
     sp3     = 4
     sp3d    = 5
     sp3d2   = 6
+    sp3d3   = 7
+    sp3d4   = 8
 
 class Hybride(SousCouche):
     """Représente une sous-couche hybridée."""
@@ -211,7 +213,7 @@ class Hybride(SousCouche):
             nbre_sterique (int) : Le nombre stérique
             electrons (int) : Le nombre d'électrons dans la couche hybridée."""
         if not isinstance(nbre_sterique, int): raise TypeError("nbre_sterique doit être un int")
-        if nbre_sterique > 6: raise ValueError("Nombre stérique > 6 n'est pas pas supporté")
+        if nbre_sterique > 8: raise ValueError("Nombre stérique > 8 n'est pas pas supporté")
 
         self.__type : Hybridation = Hybride.TYPES[nbre_sterique - 2]
         if electrons > self.e_max: raise ValueError(f"Trop d'électrons dans la couche {self}")
@@ -239,7 +241,7 @@ class Hybride(SousCouche):
         if self.nbre_e < 2:
             e = Electron(self.n, 0, 0, +0.5 if self.nbre_e == 0 else -0.5)
         elif self.nbre_e < 8:
-            e = Electron(self.n, 1, -1 + self.nbre_e // 2, +0.5 if self.nbre_e % 2 == 0 else -0.5)
+            e = Electron(self.n, 1, -2 + self.nbre_e // 2, +0.5 if self.nbre_e % 2 == 0 else -0.5)
         else:
             e = Electron(self.n, 2, -2 + self.nbre_e // 2, +0.5 if self.nbre_e % 2 == 0 else -0.5)
         self._electrons.append(e)
