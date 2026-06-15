@@ -4,7 +4,7 @@ from types import NoneType
 from atomes import Atome
 from couches import *
 from liaisons import *
-from utilitees import formatter_molecule
+from utilitees import formatter_molecule, perpendiculaire
 
 import vpython as vp
 
@@ -141,17 +141,17 @@ class MoleculeViewer:
         """Donne l'axe dans lequel l'atome est situé par rapport à son atome central."""
         if info.nbre_sterique == 1 or info.nbre_sterique == 2:
             angle : float = vp.radians(180.0) * i
-            axe : vp.vector = vp.vector(info.axis.y, -info.axis.x, 0).rotate(angle)
+            axe : vp.vector = perpendiculaire(info.axis).rotate(angle)
         elif info.nbre_sterique == 3:
             angle : float = vp.radians(120.0) * i - vp.radians(60.0)
-            axe : vp.vector = info.axis.rotate(angle, vp.vector(info.axis.y, -info.axis.x, 0))
+            axe : vp.vector = info.axis.rotate(angle, perpendiculaire(info.axis))
         elif info.nbre_sterique == 4:
             if not info.centre and not doublet: i += 1
             if i == 0:
                 axe : vp.vector = -info.axis
             else:
                 angle : float = vp.radians(120.0) * (i - 1)
-                axe : vp.vector = vp.vector(info.axis.y, -info.axis.x, 0)
+                axe : vp.vector = perpendiculaire(info.axis)
                 axe = (-info.axis).rotate(vp.radians(109.5), axe).rotate(angle, info.axis)
         elif info.nbre_sterique == 5:
             if not info.centre and not doublet: i += 1
@@ -159,30 +159,30 @@ class MoleculeViewer:
                 axe : vp.vector = info.axis * (1 if i == 0 else -1)
             else:
                 angle : float = vp.radians(120.0) * (i - 2)
-                axe : vp.vector = vp.vector(info.axis.y, -info.axis.x, 0).rotate(angle, info.axis)
+                axe : vp.vector = perpendiculaire(info.axis).rotate(angle, info.axis)
         elif info.nbre_sterique == 6:
             if not info.centre and not doublet: i += 1
             if i < 2:
                 axe : vp.vector = info.axis * (1 if i == 0 else -1)
             else:
                 angle : float = vp.radians(90.0) * (i - 2)
-                axe : vp.vector = vp.vector(info.axis.y, -info.axis.x, 0).rotate(angle, info.axis)
+                axe : vp.vector = perpendiculaire(info.axis).rotate(angle, info.axis)
         elif info.nbre_sterique == 7:
             if not info.centre and not doublet: i += 1
             if i < 2:
                 axe : vp.vector = info.axis * (1 if i == 0 else -1)
             else:
                 angle : float = vp.radians(72.0) * (i - 2)
-                axe : vp.vector = vp.vector(info.axis.y, -info.axis.x, 0).rotate(angle, info.axis)
+                axe : vp.vector = perpendiculaire(info).rotate(angle, info.axis)
         elif info.nbre_sterique == 8:
             if not info.centre and not doublet: i += 1
             if i < 4:
-                axe_principal : vp.vector = info.axis.rotate(vp.radians(120.0), vp.vector(info.axis.y, -info.axis.x, 0))
+                axe_principal : vp.vector = info.axis.rotate(vp.radians(120.0), perpendiculaire(info.axis))
                 angle : float = vp.radians(90.0) * i
                 axe : vp.vector = info.axis.rotate(angle, axe_principal)
             else:
-                axe_principal : vp.vector = info.axis.rotate(vp.radians(120.0), vp.vector(info.axis.y, -info.axis.x, 0))
-                axe : vp.vector = info.axis.rotate(vp.radians(60.0), vp.vector(info.axis.y, -info.axis.x, 0))
+                axe_principal : vp.vector = info.axis.rotate(vp.radians(120.0), perpendiculaire(info.axis))
+                axe : vp.vector = info.axis.rotate(vp.radians(60.0), perpendiculaire(info.axis))
                 angle : float = vp.radians(90.0) * i + vp.radians(45.0)
                 axe = axe.rotate(angle, axe_principal)
         else:

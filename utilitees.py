@@ -1,3 +1,5 @@
+import vpython as vp
+
 def superscript(exposant : int, signe_obligatoire : bool = False) -> str:
     """Donne la version texte 'superscript' (comme un exposant) d'un nombre.
     Args:
@@ -54,3 +56,13 @@ def formatter_molecule(molecule : str) -> str:
         else:
             resultat += c
     return resultat
+
+def perpendiculaire(v : vp.vector) -> vp.vector:
+    """Donne un vecteur perpendiculaire
+    Args:
+        v (vp.vector) : l'axe avec lequel le vecteur doit être perpendiculaire
+    Returns:
+        vp.vector : le vecteur perpendiculaire"""
+    if v.x == 0 and v.y == 0:
+        return vp.vector(0.0, v.z, -v.y).norm()
+    return vp.vector(v.y, -v.x, 0.0).norm()
